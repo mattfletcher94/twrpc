@@ -1,3 +1,7 @@
-export const hello = () => {
-    console.log('Hello World!');
+import { createApp, defineRoute, defineRouter } from "./router"
+
+export {
+  createApp,
+  defineRoute,
+  defineRouter,
 }
