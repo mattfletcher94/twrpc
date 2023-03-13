@@ -1,5 +1,11 @@
 # w-r-p-c
 
+## 0.0.7
+
+### Patch Changes
+
+- Package json repo update
+
 ## 0.0.5
 
 ### Patch Changes

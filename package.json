@@ -1,10 +1,10 @@
 {
   "name": "twrpc",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "TWRPC is a library for creating type-safe, strongly-typed, and easy-to-use RPCs in TypeScript. It is designed to be used in web workers.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mattfletcher94/wrpc.git"
+    "url": "https://github.com/mattfletcher94/twrpc.git"
   },
   "private": false,
   "main": "./dist/index.js",
