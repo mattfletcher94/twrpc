@@ -204,6 +204,7 @@ describe("router", () => {
 
 });
 
+// @ts-expect-error - import.meta.url is not working
 const worker = new Worker(new URL("./router.test.worker.ts", import.meta.url), { type: "module" });
 const client = createClient<typeof router>(worker);
 
