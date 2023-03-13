@@ -1,5 +1,11 @@
 # w-r-p-c
 
+## 0.0.5
+
+### Patch Changes
+
+- a1c88f2: Readme and package.json update
+
 ## 0.0.4
 
 ### Patch Changes
