@@ -1,5 +1,11 @@
 # w-r-p-c
 
+## 0.0.4
+
+### Patch Changes
+
+- Added handle message and create client type safety
+
 ## 0.0.3
 
 ### Patch Changes

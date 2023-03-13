@@ -1,7 +1,8 @@
-import { createApp, defineRoute, defineRouter } from "./router"
+import { createApp, createClient, defineRoute, defineRouter } from "./router"
 
 export {
   createApp,
+  createClient,
   defineRoute,
   defineRouter,
 }

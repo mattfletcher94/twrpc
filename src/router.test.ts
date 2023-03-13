@@ -1,5 +1,5 @@
-import { beforeAll, describe, expect, it } from "vitest";
-import { createApp, defineRoute, defineRouter } from "./router";
+import { describe, expect, it } from "vitest";
+import { createApp, createClient, defineRoute, defineRouter } from "./router";
 import { z } from "zod";
 
 const router = defineRouter({
@@ -8,7 +8,13 @@ const router = defineRouter({
       name: z.string(),
     }),
     handler: ({ input }) => {
-      return `Hello ${input.name}`;
+      return {
+        message: `Hello ${input.name}`,
+        coolStuff: {
+          a: 1,
+          b: 2,
+        },
+      };
     },
   }),
   subRouter: defineRouter({
@@ -22,7 +28,7 @@ const router = defineRouter({
         };
       },
     }),
-    input: defineRoute({
+    test: defineRoute({
       input: z.object({
         name: z.string(),
       }),
@@ -33,136 +39,208 @@ const router = defineRouter({
   }),
 });
 
+const app = createApp(router);
+
 describe("router", () => {
-  it("Should return the correct output", async () => {
-    const result = await router.hello.handler({
-      input: { name: "John" },
+
+  it("should return 404 if route is not found", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "notFound",
+            input: {},
+          },
+        },
+      } as MessageEvent,
       ctx: {},
     });
-    expect(result).toBe("Hello John");
+    expect(response.WRPC.status).toBe(404);
   });
 
-  it("Should return the correct output from a sub route", async () => {
-    const result = await router.subRouter.subRoute.handler({
-      input: { ids: ["1", "2"] },
+  it("should return 200 if route is found", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "hello",
+            input: {
+              name: "Bob",
+            },
+          },
+        },
+      } as MessageEvent,
       ctx: {},
     });
-    expect(result).toEqual({ ids: ["1", "2"] });
+    expect(response.WRPC.status).toBe(200);
   });
 
-  it("Should not be able to access a sub route directly", async () => {
-    expect(() => {
-      // @ts-expect-error
-      router.subRoute.handler({
-        input: { ids: ["1", "2"] },
-        ctx: {},
-      });
-    }).toThrow();
+  it("should return 200 if sub route is found", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "subRouter.test",
+            input: {
+              name: "Bob",
+            },
+          },
+        },
+      } as MessageEvent,
+      ctx: {},
+    });
+    expect(response.WRPC.status).toBe(200);
   });
+
+  it("should return 400 if input is invalid", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "hello",
+            input: {
+              name: 123,
+            },
+          },
+        },
+      } as MessageEvent,
+      ctx: {},
+    });
+    expect(response.WRPC.status).toBe(400);
+  });
+
+  it("should return 200 if input is valid", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "hello",
+            input: {
+              name: "Bob",
+            },
+          },
+        },
+      } as MessageEvent,
+      ctx: {},
+    });
+    expect(response.WRPC.status).toBe(200);
+  });
+
+  it("should return 200 if sub route input is valid", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "subRouter.subRoute",
+            input: {
+              ids: ["1", "2", "3"],
+            },
+          },
+        },
+      } as MessageEvent,
+      ctx: {},
+    });
+    expect(response.WRPC.status).toBe(200);
+  });
+
+  it("should return 400 if sub route input is invalid", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "subRouter.subRoute",
+            input: {
+              ids: [1, 2, 3],
+            },
+          },
+        },
+      } as MessageEvent,
+      ctx: {},
+    });
+    expect(response.WRPC.status).toBe(400);
+  });
+
+  it("should return correct response if route is found", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "hello",
+            input: {
+              name: "Bob",
+            },
+          },
+        },
+      } as MessageEvent,
+      ctx: {},
+    });
+    expect(response.WRPC.payload).toEqual({
+      message: "Hello Bob",
+      coolStuff: {
+        a: 1,
+        b: 2,
+      },
+    });
+  });
+
+  it("should return correct response if sub route is found", async () => {
+    const response = await app.handleMessage({
+      message: {
+        data: {
+          WRPC: {
+            route: "subRouter.test",
+            input: {
+              name: "Bob",
+            },
+          },
+        },
+      } as MessageEvent,
+      ctx: {},
+    });
+    expect(response.WRPC.payload).toEqual("Hello Bob");
+  });
+
+  
 
 });
 
-const app = createApp(router)
+const worker = new Worker(new URL("./router.test.worker.ts", import.meta.url), { type: "module" });
+const client = createClient<typeof router>(worker);
 
-type FlattenObjectKeys<T extends Record<string, unknown>, Key = keyof T> =
-  Key extends string ?
-    T[Key] extends Record<string, unknown> ?
-      T[Key] extends ReturnType<typeof defineRouter>
-        ? `${Key}.${FlattenObjectKeys<T[Key]>}`
-        : `${Key}`
-      : (Key extends 'input' ? never : (Key extends 'handler' ? '' : Key))
-    : never
+describe("client", () => {
 
-type FlatKeys = FlattenObjectKeys<typeof router>
-
-// Remove trailing slash from FlatKeys
-type TrimSlash<T extends string> = T extends `${infer A}.` ? TrimSlash<A> : T
-type TrimmedFlatKeys = TrimSlash<FlatKeys>
-
-// Add .handler to FlatKeys
-type AddHandler<T extends string> = `${T}.handler`
-type HandlerKeys = AddHandler<TrimmedFlatKeys>
-
-
-describe("app", () => {
-
-  it("Should return the correct output", async () => {
-    const result = await app.handleMessage({
-      message: {
-        data: {
-          route: "hello",
-          input: {
-            name: "John"
-          }
-        }
-      } as MessageEvent,
-      ctx: {}
-    })
-    expect(result).toBe("Hello John");
+  it("should return 404 if route is not found", async () => {
+    try {
+      // @ts-expect-error
+      await client.query("notFound");
+    } catch (error: any) {
+      expect(error.status).toBe(404);
+    }
   });
 
-  it("Should return the correct output from a sub route", async () => {
-    const result = await app.handleMessage({
-      message: {
-        data: {
-          route: "subRouter.subRoute",
-          input: {
-            ids: ["1", "2"]
-          }
-        }
-      } as MessageEvent,
-      ctx: {}
-    })
-    expect(result).toEqual({ ids: ["1", "2"] });
-  });
-
-  it("Should return a zod error if the input is invalid", async () => {
-    const response = app.handleMessage({
-      message: {
-        data: {
-          route: "hello",
-          input: {
-            name: 1
-          }
-        }
-      } as MessageEvent,
-      ctx: {}
-    })
-
+  it("should return correct response if route is found", async () => {
+    const response = await client.query("hello", { name: "Bob" });
     expect(response).toEqual({
-      WRPCError: {
-        code: 400,
-        issues: [
-          {
-            code: "invalid_type",
-            expected: "string",
-            received: "number",
-            path: ["name"],
-            message: "Expected string, received number"
-          }
-        ]
-      }
-    })
+      message: "Hello Bob",
+      coolStuff: {
+        a: 1,
+        b: 2,
+      },
+    });
   });
 
-  it("Should return a 404 if the route is not found", async () => {
-    const response = app.handleMessage({
-      message: {
-        data: {
-          route: "hello.notFound",
-          input: {
-            name: "John"
-          }
-        }
-      } as MessageEvent,
-      ctx: {}
-    })
-    expect(response).toEqual({
-      WRPCError: {
-        code: 404,
-        message: "Route hello.notFound not found"
-      }
-    })
+  it("should return correct response if sub route is found", async () => {
+    const response = await client.query("subRouter.test", { name: "Bob" });
+    expect(response).toEqual("Hello Bob");
+  });
+
+  it("should return 400 if input is invalid", async () => {
+    try {
+      // @ts-expect-error
+      await client.query("hello", { name: 123 });
+    } catch (error: any) {
+      expect(error.status).toBe(400);
+    }
   });
 
 });
