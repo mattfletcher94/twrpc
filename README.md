@@ -1,5 +1,5 @@
 # twRPC (Beta)
-Inspired by [trpc](https://trpc.io/), TWRPC is a library for creating type-safe, strongly-typed, and easy-to-use RPCs in TypeScript. It is designed to be used in web workers, but can be used in any environment that supports `postMessage`.
+Inspired by [trpc](https://trpc.io/), twRPC is a library for creating type-safe, strongly-typed, and easy-to-use RPCs in TypeScript. It is designed to be used in web workers, but can be used in any environment that supports `postMessage`.
 
 ## Installation
 You can install this library using npm:

@@ -1,7 +1,11 @@
 {
   "name": "twrpc",
   "version": "0.0.4",
-  "description": "",
+  "description": "TWRPC is a library for creating type-safe, strongly-typed, and easy-to-use RPCs in TypeScript. It is designed to be used in web workers.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattfletcher94/wrpc.git"
+  },
   "private": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,9 +18,16 @@
     "ci": "pnpm run lint && pnpm run test && pnpm run build",
     "release": "pnpm run lint && pnpm run test && pnpm run build && changeset publish"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "rpc",
+    "web worker",
+    "typescript",
+    "type-safe",
+    "strongly-typed",
+    "trpc"
+  ],
+  "author": "Matt Fletcher",
+  "license": "MIT",
   "peerDependencies": {
     "uuid": "^9.0.0",
     "zod": "^3.21.4"
