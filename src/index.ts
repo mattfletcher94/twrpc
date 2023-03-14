@@ -1,7 +1,7 @@
-import { createApp, createClient, defineRoute, defineRouter } from "./router"
+import { createHandler, createClient, defineRoute, defineRouter } from "./twrpc"
 
 export {
-  createApp,
+  createHandler,
   createClient,
   defineRoute,
   defineRouter,

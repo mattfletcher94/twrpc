@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 
@@ -17,7 +16,7 @@ function defineRouter<T extends Record<string, any>>(routes: T) {
   return routes;
 }
 
-function createApp(router: ReturnType<typeof defineRouter>) {
+function createHandler(router: ReturnType<typeof defineRouter>) {
   return {
     async handleMessage({ message, ctx }: { message: MessageEvent; ctx: any }) {
       const queryId = message.data.WRPC.queryId;
@@ -160,30 +159,4 @@ function createClient<Router extends ReturnType<typeof defineRouter>>(
   };
 }
 
-/*
-type PrettifyRouter<T> = {
-  [K in keyof T]: T[K] extends { handler: any } ? {
-    input: ExtractRouteInput<T[K]>;
-    output: ExtractRouteOutput<T[K]>;
-  } : {
-    [SK in keyof T[K]]: T[K][SK] extends { handler: any } ? {
-      input: ExtractRouteInput<T[K][SK]>;
-      output: ExtractRouteOutput<T[K][SK]>;
-    } : never;
-  };
-}
-type Router = typeof router;
-type PrettifiedRouter = PrettifyRouter<Router>;
-type UnwrapPrettifiedRouter<T> = {
-  [K in keyof T]: T[K] extends { input: infer I, output: infer O } ? {
-    input: I;
-    output: O;
-  } : {
-    [SK in keyof T[K]]: T[K][SK] extends { input: infer I, output: infer O } ? {
-      input: I;
-      output: O;
-    } : never;
-  };
-}*/
-
-export { createApp, createClient, defineRoute, defineRouter, isWRPCMessage };
+export { createHandler, createClient, defineRoute, defineRouter, isWRPCMessage };

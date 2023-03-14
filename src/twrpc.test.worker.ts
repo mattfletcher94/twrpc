@@ -1,7 +1,7 @@
-import { createApp } from "./router";
+import { createHandler } from "./twrpc";
 import { router } from "./playground.router";
 
-const app = createApp(router);
+const app = createHandler(router);
 
 self.addEventListener("message", async (message) => {
     const response = await app.handleMessage({

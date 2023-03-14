@@ -1,5 +1,5 @@
-# twRPC (Beta)
-Inspired by [trpc](https://trpc.io/), twRPC is a library for creating type-safe, strongly-typed, and easy-to-use RPCs in TypeScript. It is designed to be used in web workers, but can be used in any environment that supports `postMessage`.
+# twRPC (Typescript-Worker Remote Procedure Call)
+twRPC is a remote procedure call library for TypeScript that is designed to be used primarily within WebWorkers. Inspired by [tRPC](https://trpc.io/), twRPC uses [Zod](https://zod.dev/) for type validation and provides a type-safe and simple way to define routes and handlers.
 
 ## Installation
 You can install this library using npm:
@@ -7,7 +7,6 @@ You can install this library using npm:
 ```npm install twrpc```
 
 ## Defining a router
-
 ```ts
 // my-router.ts
 import { defineRouter, defineRoute } from 'twrpc'
@@ -50,21 +49,19 @@ const router = defineRouter({
 // Also export the router type for use on the client
 type Router = typeof router;
 
-export {
-  router,
-  Router,
-};
+export { router };
+export type { Router };
 ```
 
-## Using twRPC in a worker
+## Using your twRPC router in a WebWorker
 
 ```ts
-// Worker.ts
-import { createApp } from 'twrpc'
+// worker.ts
+import { createHandler } from 'twrpc'
 import { router } from './my-router'
 
-// Create an instance of twrpc
-const twrpc = createApp(router);
+// Create an instance of twrpc app
+const twrpc = createHandler(router);
 
 // Handle message events
 onmessage = async (message) => {
@@ -76,23 +73,27 @@ onmessage = async (message) => {
 }
 ```
 
-## Querying the router from the client
+## Querying your twRPC router from the client
 
 ```ts
 // client.ts
 import { createClient } from 'twrpc'
 import type { Router } from './my-router'
 
-// Create a client instance
+// Create a client instance (pass router type as generic)
 const client = createClient<Router>(new Worker("worker.js"));
 
-// Query routes
+// Query routes with type-safe input and output
 const helloResult = await client.query("hello", { name: "John" });
-
 const getOneResult = await client.query("subRouter.getOne", { id: "123" });
-
 const getManyResult = await client.query("subRouter.getMany", { ids: ["123", "456"] });
 ```
 
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please note I am new to Open Source and am still learning best practices, so please feel free
+to offer any advice or suggestions.
+
 ## License
-This library is licensed under the MIT License. See the LICENSE file for details.
+[MIT](https://opensource.org/license/mit/)
+
+Copyright (c) 2023-present Matt Fletcher

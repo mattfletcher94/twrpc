@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createApp, createClient, defineRoute, defineRouter } from "./router";
+import { createHandler, createClient, defineRoute, defineRouter } from "./twrpc";
 import { z } from "zod";
 
 const router = defineRouter({
@@ -39,7 +39,7 @@ const router = defineRouter({
   }),
 });
 
-const app = createApp(router);
+const app = createHandler(router);
 
 describe("router", () => {
 
@@ -205,7 +205,7 @@ describe("router", () => {
 });
 
 // @ts-expect-error - import.meta.url is not working
-const worker = new Worker(new URL("./router.test.worker.ts", import.meta.url), { type: "module" });
+const worker = new Worker(new URL("./twrpc.test.worker.ts", import.meta.url), { type: "module" });
 const client = createClient<typeof router>(worker);
 
 describe("client", () => {

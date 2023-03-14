@@ -1,7 +1,7 @@
 {
   "name": "twrpc",
-  "version": "0.0.7",
-  "description": "TWRPC is a library for creating type-safe, strongly-typed, and easy-to-use RPCs in TypeScript. It is designed to be used in web workers.",
+  "version": "0.1.0",
+  "description": "twRPC is a remote procedure call library for TypeScript that is designed to be used primarily within WebWorkers.",
   "repository": {
     "type": "git",
     "url": "https://github.com/mattfletcher94/twrpc.git"

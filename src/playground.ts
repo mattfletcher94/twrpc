@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createApp, createClient, defineRoute, defineRouter, isWRPCMessage } from "./router";
+import { createHandler, createClient, defineRoute, defineRouter, isWRPCMessage } from "./twrpc";
 
 const router = defineRouter({
   hello: defineRoute({
@@ -40,7 +40,7 @@ const router = defineRouter({
 
 // Worker.js
 (async function() {
-    const wrpc = createApp(router);
+    const wrpc = createHandler(router);
 
     onmessage = async (message) => {
 

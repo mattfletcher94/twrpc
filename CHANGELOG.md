@@ -1,5 +1,11 @@
 # w-r-p-c
 
+## 0.1.0
+
+### Minor Changes
+
+- Change createApp to createHandler and updated readme
+
 ## 0.0.7
 
 ### Patch Changes

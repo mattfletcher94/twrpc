@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { defineRouter, defineRoute } from "./router";
+import { defineRouter, defineRoute } from "./twrpc";
 
 const router = defineRouter({
   hello: defineRoute({
